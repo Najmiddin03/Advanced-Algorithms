@@ -1,5 +1,4 @@
 public class Wildcards {
-
     public static boolean bruteForce(String text, String pattern) {
         int n = text.length();
         int m = pattern.length();
