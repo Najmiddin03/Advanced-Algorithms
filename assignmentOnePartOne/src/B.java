@@ -11,10 +11,6 @@ public class B {
             text += scanner.nextLine();
         }
         String pattern = "algorithm";
-        String text2="";
-        for(int i=0;i<10000;i++){
-            text2+="aaaaaaaaab";
-        }
         long start, end, sunday = 0, gusfield = 0, kmp = 0, rabin = 0;
 
         for (int i = 0; i < 1000; i++) {
@@ -33,13 +29,13 @@ public class B {
 
             // Test KMP
             start = System.nanoTime();
-            PatternMatchingAlgorithms.kmp(text2, pattern2);
+            PatternMatchingAlgorithms.kmp(text, pattern);
             end = System.nanoTime();
             kmp += end - start;
 
             // Test Rabin-Karp
             start = System.nanoTime();
-            PatternMatchingAlgorithms.rabinKarp(text2, pattern2);
+            PatternMatchingAlgorithms.rabinKarp(text, pattern);
             end = System.nanoTime();
             rabin += end - start;
         }
