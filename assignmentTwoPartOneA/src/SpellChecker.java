@@ -4,24 +4,28 @@ import java.util.*;
 
 public class SpellChecker {
     private final List<String> dictionaryList;
-    private final HashSet<String> dictionaryHashSet;
-    private final HashMap<String, Boolean> dictionaryHashMap;
+    String[] bbst;
+    private final Trie dictionaryTrie;
+    private final Set<String> dictionarySet;
 
     public SpellChecker() {
         dictionaryList = new ArrayList<>();
-        dictionaryHashSet = new HashSet<>();
-        dictionaryHashMap = new HashMap<>();
+        dictionaryTrie = new Trie();
+        dictionarySet = new HashSet<>();
     }
 
     public void buildDictionary(String dictionaryFilePath) throws FileNotFoundException {
         File file = new File(dictionaryFilePath);
+        bbst = new String[size(file) + 1];
         Scanner scanner = new Scanner(file);
-
+        int i = 0;
         while (scanner.hasNextLine()) {
             String word = scanner.nextLine().trim().toLowerCase();
             dictionaryList.add(word);
-            dictionaryHashSet.add(word);
-            dictionaryHashMap.put(word, true);
+            bbst[i] = word;
+            i++;
+            dictionaryTrie.insert(word);
+            dictionarySet.add(word);
         }
 
         scanner.close();
@@ -42,13 +46,12 @@ public class SpellChecker {
         return misspelledWords;
     }
 
-    public List<String> treeSetSpellCheck(File file) throws FileNotFoundException {
+    public List<String> binarySearchSpellCheck(File file) throws FileNotFoundException {
         List<String> misspelledWords = new ArrayList<>();
         Scanner scanner = new Scanner(file);
-
         while (scanner.hasNext()) {
             String word = scanner.next().trim().toLowerCase();
-            if (!dictionaryHashSet.contains(word)) {
+            if (binarySearch(bbst, word) == -1) {
                 misspelledWords.add(word);
             }
         }
@@ -57,13 +60,50 @@ public class SpellChecker {
         return misspelledWords;
     }
 
-    public List<String> hashMapSpellCheck(File file) throws FileNotFoundException {
+    public static int binarySearch(String[] arr, String target) {
+        int left = 0;
+        int right = arr.length - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            int comparison = target.compareTo(arr[mid]);
+            if (comparison == 0) {
+                return mid;
+            }
+
+            if (comparison < 0) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        return -1; // Target not found
+    }
+
+    public List<String> trieSpellCheck(File file) throws FileNotFoundException {
         List<String> misspelledWords = new ArrayList<>();
         Scanner scanner = new Scanner(file);
 
         while (scanner.hasNext()) {
             String word = scanner.next().trim().toLowerCase();
-            if (!dictionaryHashMap.containsKey(word)) {
+            if (!dictionaryTrie.search(word)) {
+                misspelledWords.add(word);
+            }
+        }
+
+        scanner.close();
+        return misspelledWords;
+    }
+
+    public List<String> hashSetSpellCheck(File file) throws FileNotFoundException {
+        List<String> misspelledWords = new ArrayList<>();
+        Scanner scanner = new Scanner(file);
+
+        while (scanner.hasNext()) {
+            String word = scanner.next().trim().toLowerCase();
+            if (!dictionarySet.contains(word)) {
                 misspelledWords.add(word);
             }
         }
@@ -73,9 +113,9 @@ public class SpellChecker {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        final int testTimes = 10;
+        final int testTimes = 100;
         SpellChecker spellChecker = new SpellChecker();
-
+        System.out.println("Main");
         // Build the dictionary
         try {
             spellChecker.buildDictionary("dictionary.txt");
@@ -83,10 +123,9 @@ public class SpellChecker {
             System.out.println("Dictionary file not found.");
             return;
         }
-        System.out.println("Size:  Linear  TreeSet  HashMap");
+        System.out.println("Size:\tLinear\tBBST\tTrie\tHashSet");
 
-
-        long startTime, endTime, duration = 0;
+        long startTime, endTime, duration;
         String[] textFilePath = {"small.txt", "medium.txt", "large.txt", "gigantic.txt"};
 
         for (int i = 0; i < textFilePath.length; i++) {
@@ -102,30 +141,40 @@ public class SpellChecker {
                 spellChecker.linearListSpellCheck(file);
                 endTime = System.nanoTime();
                 duration = endTime - startTime;
-                System.out.print("  " + duration);
+                System.out.print("\t" + duration);
             } else {
                 System.out.print("\t\t\t");
             }
             duration = 0;
 
-            // TreeSet approach
+            // BBST approach
             for (int j = 0; j < testTimes; j++) {
                 startTime = System.nanoTime();
-                spellChecker.treeSetSpellCheck(file);
+                spellChecker.binarySearchSpellCheck(file);
                 endTime = System.nanoTime();
                 duration += endTime - startTime;
             }
-            System.out.print("  " + duration / testTimes);
+            System.out.print("\t" + duration / testTimes);
             duration = 0;
 
-            // HashMap approach
+            // Trie approach
             for (int j = 0; j < testTimes; j++) {
                 startTime = System.nanoTime();
-                spellChecker.hashMapSpellCheck(file);
+                spellChecker.trieSpellCheck(file);
                 endTime = System.nanoTime();
                 duration += endTime - startTime;
             }
-            System.out.print("  " + duration / testTimes + "\n");
+            System.out.print("\t" + duration / testTimes);
+            duration = 0;
+
+            // HashSet approach
+            for (int j = 0; j < testTimes; j++) {
+                startTime = System.nanoTime();
+                spellChecker.hashSetSpellCheck(file);
+                endTime = System.nanoTime();
+                duration += endTime - startTime;
+            }
+            System.out.print("\t" + duration / testTimes + "\n");
         }
     }
 

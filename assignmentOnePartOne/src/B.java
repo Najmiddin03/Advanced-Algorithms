@@ -11,6 +11,10 @@ public class B {
             text += scanner.nextLine();
         }
         String pattern = "algorithm";
+        String text2="";
+        for(int i=0;i<10000;i++){
+            text2+="aaaaaaaaab";
+        }
         long start, end, sunday = 0, gusfield = 0, kmp = 0, rabin = 0;
 
         for (int i = 0; i < 1000; i++) {
@@ -29,13 +33,13 @@ public class B {
 
             // Test KMP
             start = System.nanoTime();
-            PatternMatchingAlgorithms.kmp(text, pattern);
+            PatternMatchingAlgorithms.kmp(text2, pattern2);
             end = System.nanoTime();
             kmp += end - start;
 
             // Test Rabin-Karp
             start = System.nanoTime();
-            PatternMatchingAlgorithms.rabinKarp(text, pattern);
+            PatternMatchingAlgorithms.rabinKarp(text2, pattern2);
             end = System.nanoTime();
             rabin += end - start;
         }
@@ -43,6 +47,10 @@ public class B {
         gusfield /= 1000;
         rabin /= 1000;
         kmp /= 1000;
+        System.out.println("Sunday execution time: " + sunday);
+        System.out.println("Gusfield execution time: " + gusfield);
+        System.out.println("KMP execution time: " + kmp);
+        System.out.println("Rabin-Karp execution time: " + rabin);
         // Sunday vs. Gusfield Z
         System.out.println("Sunday is " + (double) gusfield / sunday + " times as fast as GusfieldZ");
         // KMP vs. Rabin-Karp
